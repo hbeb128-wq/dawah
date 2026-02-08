@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="ar" dir="rtl" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>جمعية البيضاء للدعوة والإرشاد - بث صوتي مباشر</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&amp;family=Tajawal:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+      font-family: 'Tajawal', sans-serif;
+    }
+    .amiri {
+      font-family: 'Amiri', serif;
+    }
+    @keyframes pulse-live {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .live-pulse {
+      animation: pulse-live 1.5s ease-in-out infinite;
+    }
+    @keyframes sound-wave {
+      0%, 100% { transform: scaleY(0.3); }
+      50% { transform: scaleY(1); }
+    }
+    .sound-bar {
+      animation: sound-wave 0.8s ease-in-out infinite;
+    }
+    .sound-bar:nth-child(2) { animation-delay: 0.1s; }
+    .sound-bar:nth-child(3) { animation-delay: 0.2s; }
+    .sound-bar:nth-child(4) { animation-delay: 0.3s; }
+    .sound-bar:nth-child(5) { animation-delay: 0.15s; }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 overflow-auto">
+  <div id="app" class="w-full h-full"><!-- Header -->
+   <header class="bg-emerald-950/80 backdrop-blur-sm border-b border-emerald-700/50 py-6">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+     <div class="flex items-center justify-center mb-3"><img src="https://g.top4top.io/p_3691okl8c1.png" alt="شعار الجمعية" class="h-32 md:h-40 object-contain" loading="lazy" onerror="console.error('Image failed to load:', this.src); this.style.display='none';">
+     </div>
+     <h1 id="main-title" class="amiri text-3xl md:text-4xl font-bold text-white text-center">جمعية البيضاء للدعوة والإرشاد</h1>
+     <p id="welcome-text" class="text-emerald-200 text-lg">نشر العلم الشرعي والدعوة إلى الله</p>
+    </div>
+   </header>
+   <main class="max-w-6xl mx-auto px-4 py-8"><!-- Live Broadcast Section -->
+    <section id="broadcast-section" class="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-8 border border-emerald-600/30">
+     <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-white flex items-center gap-3"><span class="text-amber-400">📡</span> البث المباشر</h2>
+      <div id="live-indicator" class="hidden items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-full"><span class="w-3 h-3 bg-white rounded-full live-pulse"></span> <span class="font-bold">مباشر الآن</span>
+      </div>
+     </div><!-- Current Broadcast Info -->
+     <div id="broadcast-info" class="bg-emerald-950/50 rounded-xl p-6 mb-6">
+      <div id="no-broadcast" class="text-center py-8">
+       <div class="text-6xl mb-4">
+        🎙️
+       </div>
+       <p class="text-emerald-200 text-xl">لا يوجد بث مباشر حالياً</p>
+       <p class="text-emerald-400 mt-2">تابعونا في المواعيد المحددة أدناه</p>
+      </div>
+      <div id="active-broadcast" class="hidden">
+       <div class="flex items-start gap-6">
+        <div class="flex-1">
+         <h3 id="broadcast-title" class="text-2xl font-bold text-white mb-2"></h3>
+         <p id="broadcast-speaker" class="text-amber-400 text-lg mb-4"></p><!-- Sound Visualization -->
+         <div class="flex items-end justify-center gap-1 h-16 mb-6">
+          <div class="sound-bar w-2 bg-amber-400 rounded-full" style="height: 60%"></div>
+          <div class="sound-bar w-2 bg-amber-400 rounded-full" style="height: 80%"></div>
+          <div class="sound-bar w-2 bg-amber-400 rounded-full" style="height: 100%"></div>
+          <div class="sound-bar w-2 bg-amber-400 rounded-full" style="height: 70%"></div>
+          <div class="sound-bar w-2 bg-amber-400 rounded-full" style="height: 90%"></div>
+         </div><!-- Listener Controls -->
+         <div id="listener-controls" class="text-center"><button id="listen-btn" class="bg-amber-500 hover:bg-amber-600 text-emerald-950 font-bold px-8 py-3 rounded-full transition-all transform hover:scale-105 flex items-center gap-2 mx-auto"> <span>🎧</span> بدء الاستماع </button> <button id="stop-listen-btn" class="hidden bg-red-500 hover:bg-red-600 text-white font-bold px-8 py-3 rounded-full transition-all transform hover:scale-105 flex items-center gap-2 mx-auto"> <span>⏹️</span> إيقاف الاستماع </button>
+         </div>
+         <div id="listeners-count" class="text-center mt-4 text-emerald-200"><span class="text-amber-400 font-bold">0</span> مستمع الآن
+         </div><!-- Connection Status -->
+         <div id="connection-status" class="hidden text-center mt-4 text-yellow-300"><span class="animate-spin inline-block">⏳</span> جاري الاتصال...
+         </div>
+         <div id="connection-error" class="hidden text-center mt-4 text-red-300">
+          ❌ فشل الاتصال - تحقق من الرابط
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Admin Panel Toggle -->
+     <div class="text-center"><button id="admin-toggle" class="text-emerald-300 hover:text-amber-400 transition-colors text-sm underline"> دخول لوحة التحكم (للملقي) </button>
+     </div>
+    </section><!-- Admin Panel (Hidden by default) -->
+    <section id="admin-panel" class="hidden bg-amber-500/10 backdrop-blur-md rounded-2xl p-6 mb-8 border border-amber-500/30">
+     <h2 class="text-2xl font-bold text-amber-400 mb-6 flex items-center gap-3"><span>⚙️</span> لوحة التحكم</h2><!-- Login Form -->
+     <div id="admin-login" class="max-w-md mx-auto">
+      <div class="bg-emerald-950/50 rounded-xl p-6"><label class="block text-emerald-200 mb-2">الرقم السري</label> <input type="password" id="admin-password" class="w-full bg-emerald-900/50 border border-emerald-600 rounded-lg px-4 py-3 text-white mb-4 focus:outline-none focus:border-amber-400" placeholder="أدخل الرقم السري"> <button id="admin-login-btn" class="w-full bg-amber-500 hover:bg-amber-600 text-emerald-950 font-bold py-3 rounded-lg transition-colors"> دخول </button>
+       <p id="login-error" class="hidden text-red-400 text-center mt-3">الرقم السري غير صحيح</p>
+      </div>
+     </div><!-- Admin Controls (After Login) -->
+     <div id="admin-controls" class="hidden"><!-- Broadcast Control -->
+      <div class="bg-emerald-950/50 rounded-xl p-6 mb-6">
+       <h3 class="text-xl font-bold text-white mb-4">التحكم بالبث</h3>
+       <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div><label class="block text-emerald-200 mb-2">عنوان الكلمة</label> <input type="text" id="broadcast-title-input" class="w-full bg-emerald-900/50 border border-emerald-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-amber-400" placeholder="عنوان الكلمة">
+        </div>
+        <div><label class="block text-emerald-200 mb-2">اسم الملقي</label> <input type="text" id="broadcast-speaker-input" class="w-full bg-emerald-900/50 border border-emerald-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-amber-400" placeholder="اسم الملقي">
+        </div>
+       </div><!-- Broadcaster URL -->
+       <div class="bg-emerald-900/50 rounded-lg p-4 mb-4">
+        <p class="text-emerald-200 mb-2">رابط البث (شارك مع المستمعين):</p>
+        <div class="flex gap-2"><input type="text" id="broadcaster-url" readonly class="flex-1 bg-emerald-800/50 border border-emerald-600 rounded-lg px-4 py-2 text-emerald-300 text-sm" placeholder="سيظهر الرابط هنا"> <button id="copy-url-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg transition-colors"> نسخ </button>
+        </div>
+       </div>
+       <div class="flex gap-4"><button id="start-broadcast" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"> <span>▶️</span> بدء البث </button> <button id="stop-broadcast" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 hidden"> <span>⏹️</span> إيقاف البث </button>
+       </div><!-- Broadcaster Status -->
+       <div id="broadcaster-status" class="mt-4 text-center text-yellow-300 hidden"><span class="animate-spin inline-block">⏳</span> جاري تفعيل الميكروفون...
+       </div>
+       <div id="broadcaster-error" class="mt-4 text-center text-red-300 hidden"></div>
+       <div id="connected-listeners" class="mt-4 text-center text-green-300 hidden">
+        ✅ <span id="listeners-count-admin">0</span> مستمع متصل
+       </div>
+      </div>
+     </div>
+    </section>
+   </main><!-- Footer -->
+   <footer class="bg-emerald-950/80 border-t border-emerald-700/50 py-6 mt-8">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+     <p class="text-emerald-300">جمعية البيضاء للدعوة والإرشاد © 2024</p>
+     <p class="text-emerald-500 text-sm mt-2">نسأل الله أن ينفع بهذه الكلمات</p>
+    </div>
+   </footer>
+  </div>
+  <script>
+    const ADMIN_PASSWORD = "1234";
+    const defaultConfig = {
+      association_name: "جمعية البيضاء للدعوة والإرشاد",
+      welcome_message: "نشر العلم الشرعي والدعوة إلى الله"
+    };
+
+    let isAdminLoggedIn = false;
+    let isBroadcasting = false;
+    let isListening = false;
+    let broadcasterPeer = null;
+    let listenerPeers = [];
+    let localStream = null;
+    let remoteStreams = [];
+    const roomId = new URLSearchParams(window.location.search).get('room') || 'default-room';
+
+    // Update broadcaster URL
+    function updateBroadcasterUrl() {
+      const url = new URL(window.location);
+      url.searchParams.set('room', roomId);
+      document.getElementById('broadcaster-url').value = url.toString();
+    }
+
+    // Admin Functions
+    document.getElementById('admin-toggle').addEventListener('click', () => {
+      document.getElementById('admin-panel').classList.toggle('hidden');
+    });
+
+    document.getElementById('admin-login-btn').addEventListener('click', () => {
+      const password = document.getElementById('admin-password').value;
+      if (password === ADMIN_PASSWORD) {
+        isAdminLoggedIn = true;
+        document.getElementById('admin-login').classList.add('hidden');
+        document.getElementById('admin-controls').classList.remove('hidden');
+        document.getElementById('login-error').classList.add('hidden');
+        updateBroadcasterUrl();
+      } else {
+        document.getElementById('login-error').classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('copy-url-btn').addEventListener('click', () => {
+      const urlInput = document.getElementById('broadcaster-url');
+      urlInput.select();
+      document.execCommand('copy');
+      const btn = document.getElementById('copy-url-btn');
+      btn.textContent = '✅ تم النسخ';
+      setTimeout(() => { btn.textContent = 'نسخ'; }, 2000);
+    });
+
+    // Start Broadcasting
+    document.getElementById('start-broadcast').addEventListener('click', async () => {
+      const title = document.getElementById('broadcast-title-input').value.trim();
+      const speaker = document.getElementById('broadcast-speaker-input').value.trim();
+      
+      if (!title || !speaker) {
+        alert('الرجاء ملء جميع البيانات');
+        return;
+      }
+
+      const btn = document.getElementById('start-broadcast');
+      document.getElementById('broadcaster-status').classList.remove('hidden');
+      btn.disabled = true;
+
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ 
+          audio: true,
+          video: false 
+        });
+
+        isBroadcasting = true;
+        document.getElementById('broadcast-title').textContent = title;
+        document.getElementById('broadcast-speaker').textContent = 'الملقي: ' + speaker;
+        document.getElementById('no-broadcast').classList.add('hidden');
+        document.getElementById('active-broadcast').classList.remove('hidden');
+        document.getElementById('live-indicator').classList.remove('hidden');
+        document.getElementById('live-indicator').classList.add('flex');
+
+        document.getElementById('start-broadcast').classList.add('hidden');
+        document.getElementById('stop-broadcast').classList.remove('hidden');
+        document.getElementById('broadcaster-status').classList.add('hidden');
+        document.getElementById('connected-listeners').classList.remove('hidden');
+
+        // Simulate listener connection
+        simulateBroadcasting();
+
+      } catch (error) {
+        document.getElementById('broadcaster-error').textContent = '❌ فشل الوصول للميكروفون: ' + error.message;
+        document.getElementById('broadcaster-error').classList.remove('hidden');
+        document.getElementById('broadcaster-status').classList.add('hidden');
+        btn.disabled = false;
+      }
+    });
+
+    // Stop Broadcasting
+    document.getElementById('stop-broadcast').addEventListener('click', () => {
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+      }
+
+      isBroadcasting = false;
+      document.getElementById('no-broadcast').classList.remove('hidden');
+      document.getElementById('active-broadcast').classList.add('hidden');
+      document.getElementById('live-indicator').classList.add('hidden');
+      document.getElementById('live-indicator').classList.remove('flex');
+      document.getElementById('start-broadcast').classList.remove('hidden');
+      document.getElementById('stop-broadcast').classList.add('hidden');
+      document.getElementById('connected-listeners').classList.add('hidden');
+      document.getElementById('listeners-count-admin').textContent = '0';
+    });
+
+    // Listen to Broadcast
+    document.getElementById('listen-btn').addEventListener('click', async () => {
+      if (isBroadcasting) {
+        try {
+          document.getElementById('connection-status').classList.remove('hidden');
+          document.getElementById('listen-btn').disabled = true;
+
+          isListening = true;
+          document.getElementById('listen-btn').classList.add('hidden');
+          document.getElementById('stop-listen-btn').classList.remove('hidden');
+          
+          // Simulate connection success
+          setTimeout(() => {
+            document.getElementById('connection-status').classList.add('hidden');
+            simulateListening();
+          }, 1500);
+
+        } catch (error) {
+          document.getElementById('connection-error').classList.remove('hidden');
+          document.getElementById('listen-btn').disabled = false;
+        }
+      }
+    });
+
+    // Stop Listening
+    document.getElementById('stop-listen-btn').addEventListener('click', () => {
+      if (remoteStreams.length > 0) {
+        remoteStreams.forEach(stream => {
+          stream.getTracks().forEach(track => track.stop());
+        });
+        remoteStreams = [];
+      }
+
+      isListening = false;
+      document.getElementById('listen-btn').classList.remove('hidden');
+      document.getElementById('stop-listen-btn').classList.add('hidden');
+      document.getElementById('connection-error').classList.add('hidden');
+    });
+
+    // Simulate Broadcasting
+    function simulateBroadcasting() {
+      let listeners = 1;
+      const interval = setInterval(() => {
+        if (!isBroadcasting) {
+          clearInterval(interval);
+          return;
+        }
+        listeners = Math.max(listeners - (Math.random() > 0.7 ? 1 : 0), 1);
+        listeners += Math.random() > 0.8 ? 1 : 0;
+        document.getElementById('listeners-count-admin').textContent = listeners;
+        document.getElementById('listeners-count').innerHTML = `<span class="text-amber-400 font-bold">${listeners}</span> مستمع الآن`;
+      }, 3000);
+    }
+
+    // Simulate Listening
+    function simulateListening() {
+      const audio = new Audio();
+      audio.volume = 0.5;
+      isListening = true;
+    }
+
+    // Initialize
+    function init() {
+      updateBroadcasterUrl();
+      
+      // Check if there's a broadcast active
+      const broadcastActive = new URLSearchParams(window.location.search).get('broadcast') === 'true';
+      if (broadcastActive && !isAdminLoggedIn) {
+        // Show broadcast interface for listeners
+      }
+    }
+
+    init();
+
+    // Config Update
+    async function onConfigChange(config) {
+      document.getElementById('main-title').textContent = config.association_name || defaultConfig.association_name;
+      document.getElementById('welcome-text').textContent = config.welcome_message || defaultConfig.welcome_message;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['association_name', config.association_name || defaultConfig.association_name],
+        ['welcome_message', config.welcome_message || defaultConfig.welcome_message]
+      ]);
+    }
+
+    // Initialize Element SDK if available
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cacb14cf21f2cff',t:'MTc3MDU3MDEyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
